@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg3d" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b0f14"/>
+      <stop offset="100%" style="stop-color:#0f1721"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg3d)"/>
+
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" fill="#e6eef7" font-family="monospace" font-size="18" font-weight="600">Homology Nucleus - 3D Proof Map</text>
+  <text x="400" y="60" text-anchor="middle" fill="#6b7d8c" font-family="monospace" font-size="12">Click to rotate and explore</text>
+
+  <!-- 3D perspective edges -->
+  <g stroke="rgba(100,120,140,0.15)" stroke-width="1" fill="none">
+    <!-- Back layer connections -->
+    <path d="M180 280 Q 300 200 400 260"/>
+    <path d="M400 260 Q 500 220 600 280"/>
+    <path d="M200 350 Q 350 280 500 340"/>
+
+    <!-- Middle layer connections -->
+    <path d="M250 380 Q 400 320 550 380"/>
+    <path d="M300 420 Q 450 360 600 420"/>
+
+    <!-- Front layer connections -->
+    <path d="M320 480 Q 450 420 580 480"/>
+    <path d="M380 520 Q 500 460 620 520"/>
+  </g>
+
+  <!-- Back layer nodes (smaller, more transparent) -->
+  <g opacity="0.5">
+    <circle cx="180" cy="280" r="5" fill="#5e9cff"/>
+    <circle cx="220" cy="260" r="4" fill="#5e9cff"/>
+    <circle cx="400" cy="260" r="6" fill="#c77dff"/>
+    <circle cx="440" cy="240" r="4" fill="#c77dff"/>
+    <circle cx="600" cy="280" r="5" fill="#4ade80"/>
+    <circle cx="560" cy="260" r="4" fill="#4ade80"/>
+  </g>
+
+  <!-- Middle layer nodes -->
+  <g opacity="0.75">
+    <circle cx="200" cy="350" r="6" fill="#5e9cff"/>
+    <circle cx="250" cy="380" r="7" fill="#c77dff"/>
+    <circle cx="300" cy="360" r="5" fill="#c77dff"/>
+    <circle cx="400" cy="340" r="8" fill="#4ade80"/>
+    <circle cx="450" cy="360" r="6" fill="#4ade80"/>
+    <circle cx="500" cy="340" r="7" fill="#fbbf24"/>
+    <circle cx="550" cy="380" r="6" fill="#fbbf24"/>
+    <circle cx="600" cy="360" r="5" fill="#f472b6"/>
+    <circle cx="650" cy="380" r="6" fill="#f472b6"/>
+  </g>
+
+  <!-- Front layer nodes (larger, full opacity) -->
+  <g filter="url(#glow)">
+    <circle cx="280" cy="440" r="7" fill="#5e9cff"/>
+    <circle cx="320" cy="480" r="9" fill="#c77dff"/>
+    <circle cx="380" cy="460" r="8" fill="#4ade80"/>
+    <circle cx="450" cy="450" r="10" fill="#fbbf24"/>
+    <circle cx="520" cy="470" r="9" fill="#f472b6"/>
+    <circle cx="580" cy="480" r="8" fill="#22d3d3"/>
+    <circle cx="380" cy="520" r="7" fill="#a3a3a3"/>
+    <circle cx="620" cy="520" r="8" fill="#22d3d3"/>
+    <circle cx="680" cy="500" r="7" fill="#22d3d3"/>
+  </g>
+
+  <!-- Depth indicator -->
+  <g transform="translate(700, 300)">
+    <line x1="0" y1="-80" x2="0" y2="80" stroke="#1c2a3a" stroke-width="2"/>
+    <text x="15" y="-70" fill="#6b7d8c" font-family="monospace" font-size="10">far</text>
+    <text x="15" y="75" fill="#6b7d8c" font-family="monospace" font-size="10">near</text>
+    <circle cx="0" cy="-60" r="4" fill="#5e9cff" opacity="0.5"/>
+    <circle cx="0" cy="0" r="6" fill="#5e9cff" opacity="0.75"/>
+    <circle cx="0" cy="60" r="8" fill="#5e9cff"/>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(60, 480)">
+    <circle cx="0" cy="0" r="6" fill="#5e9cff"/>
+    <text x="12" y="4" fill="#6b7d8c" font-family="monospace" font-size="10">F2Matrix</text>
+
+    <circle cx="0" cy="20" r="6" fill="#c77dff"/>
+    <text x="12" y="24" fill="#6b7d8c" font-family="monospace" font-size="10">LinearAlgebra</text>
+
+    <circle cx="0" cy="40" r="6" fill="#4ade80"/>
+    <text x="12" y="44" fill="#6b7d8c" font-family="monospace" font-size="10">ChainComplex</text>
+
+    <circle cx="0" cy="60" r="6" fill="#fbbf24"/>
+    <text x="12" y="64" fill="#6b7d8c" font-family="monospace" font-size="10">HomologyRepr</text>
+
+    <circle cx="120" cy="0" r="6" fill="#f472b6"/>
+    <text x="132" y="4" fill="#6b7d8c" font-family="monospace" font-size="10">QuotientNucleus</text>
+
+    <circle cx="120" cy="20" r="6" fill="#22d3d3"/>
+    <text x="132" y="24" fill="#6b7d8c" font-family="monospace" font-size="10">MathlibBridge</text>
+
+    <circle cx="120" cy="40" r="6" fill="#a3a3a3"/>
+    <text x="132" y="44" fill="#6b7d8c" font-family="monospace" font-size="10">Tests</text>
+  </g>
+</svg>

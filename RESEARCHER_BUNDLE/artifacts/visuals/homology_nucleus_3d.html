@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homology Nucleus - 3D Proof Map</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #0f1721;
+      --border: #1c2a3a;
+      --text: #e6eef7;
+      --dim: #6b7d8c;
+      --accent: #4a9eff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 100;
+    }
+    #header h1 {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    #search {
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: inherit;
+      width: 250px;
+    }
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    #legend {
+      display: flex;
+      gap: 16px;
+      margin-left: auto;
+      font-size: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    .legend-item.dimmed { opacity: 0.3; }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    #canvas-container {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #tooltip {
+      position: fixed;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      max-width: 300px;
+      z-index: 200;
+    }
+    #tooltip.visible { opacity: 1; }
+    #tooltip .name {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    #tooltip .meta {
+      color: var(--dim);
+    }
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 8px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+    }
+    .btn.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>Homology Nucleus - 3D Proof Map</h1>
+    <input type="text" id="search" placeholder="Search declarations...">
+    <div id="legend"></div>
+  </div>
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="tooltip">
+    <div class="name"></div>
+    <div class="meta"></div>
+  </div>
+  <div id="controls">
+    <button class="btn active" id="autoRotateBtn">Auto-Rotate</button>
+    <button class="btn" id="resetBtn">Reset View</button>
+  </div>
+
+  <script src="homology_nucleus_proofs_data.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    const search = document.getElementById('search');
+    const legend = document.getElementById('legend');
+    const resetBtn = document.getElementById('resetBtn');
+    const autoRotateBtn = document.getElementById('autoRotateBtn');
+
+    const familyColors = {
+      'F2Matrix': '#5e9cff',
+      'LinearAlgebra': '#c77dff',
+      'ChainComplex': '#4ade80',
+      'HomologyRepr': '#fbbf24',
+      'QuotientNucleus': '#f472b6',
+      'MathlibBridge': '#22d3d3',
+      'Tests': '#a3a3a3'
+    };
+
+    let rotX = 0.3, rotY = 0;
+    let zoom = 1;
+    let dragging = false;
+    let lastMouse = { x: 0, y: 0 };
+    let activeFilters = new Set(Object.keys(familyColors));
+    let searchTerm = '';
+    let hoveredNode = null;
+    let autoRotate = true;
+
+    function resize() {
+      canvas.width = canvas.clientWidth * devicePixelRatio;
+      canvas.height = canvas.clientHeight * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+
+    function project(x, y, z) {
+      // Center coordinates
+      x -= 0.5; y -= 0.5; z -= 0.5;
+
+      // Rotate around Y axis
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      const x1 = x * cosY - z * sinY;
+      const z1 = x * sinY + z * cosY;
+
+      // Rotate around X axis
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+      const y1 = y * cosX - z1 * sinX;
+      const z2 = y * sinX + z1 * cosX;
+
+      // Perspective projection
+      const fov = 2;
+      const scale = fov / (fov + z2 + 1);
+
+      const cx = canvas.clientWidth / 2;
+      const cy = canvas.clientHeight / 2;
+      const size = Math.min(cx, cy) * 0.8 * zoom;
+
+      return {
+        x: cx + x1 * scale * size,
+        y: cy + y1 * scale * size,
+        z: z2,
+        scale: scale
+      };
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+      // Project all nodes
+      const projected = homologyNucleusProofsData.items.map((item, i) => ({
+        ...project(item.pos.x, item.pos.y, item.pos.z),
+        item,
+        index: i
+      }));
+
+      // Sort by z for proper depth rendering
+      projected.sort((a, b) => a.z - b.z);
+
+      // Draw edges
+      ctx.strokeStyle = 'rgba(100, 120, 140, 0.15)';
+      ctx.lineWidth = 1;
+      for (const [i, j] of homologyNucleusProofsData.edges) {
+        const a = homologyNucleusProofsData.items[i];
+        const b = homologyNucleusProofsData.items[j];
+        if (!activeFilters.has(a.family) || !activeFilters.has(b.family)) continue;
+        const pa = project(a.pos.x, a.pos.y, a.pos.z);
+        const pb = project(b.pos.x, b.pos.y, b.pos.z);
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y);
+        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+      }
+
+      // Draw nodes (back to front)
+      for (const p of projected) {
+        if (!activeFilters.has(p.item.family)) continue;
+        const matchesSearch = !searchTerm || p.item.name.toLowerCase().includes(searchTerm);
+        const isHovered = hoveredNode === p.index;
+        const baseR = isHovered ? 12 : 8;
+        const r = baseR * p.scale * zoom;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        const alpha = matchesSearch ? (0.5 + p.scale * 0.5) : 0.2;
+        ctx.fillStyle = matchesSearch ? familyColors[p.item.family] : `rgba(100,100,100,${alpha})`;
+        ctx.fill();
+
+        if (isHovered) {
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+    }
+
+    function findNodeAt(sx, sy) {
+      // Check in reverse projected order (front to back)
+      const projected = homologyNucleusProofsData.items.map((item, i) => ({
+        ...project(item.pos.x, item.pos.y, item.pos.z),
+        item,
+        index: i
+      }));
+      projected.sort((a, b) => b.z - a.z); // Front first
+
+      for (const p of projected) {
+        if (!activeFilters.has(p.item.family)) continue;
+        const r = 12 * p.scale * zoom;
+        const dx = sx - p.x, dy = sy - p.y;
+        if (dx*dx + dy*dy < r*r) return p.index;
+      }
+      return null;
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      dragging = true;
+      lastMouse = { x: e.clientX, y: e.clientY };
+      autoRotate = false;
+      autoRotateBtn.classList.remove('active');
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (dragging) {
+        rotY += (e.clientX - lastMouse.x) * 0.01;
+        rotX += (e.clientY - lastMouse.y) * 0.01;
+        rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+        lastMouse = { x: e.clientX, y: e.clientY };
+        render();
+      } else {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const node = findNodeAt(x, y);
+        if (node !== hoveredNode) {
+          hoveredNode = node;
+          render();
+        }
+        if (node !== null) {
+          const item = homologyNucleusProofsData.items[node];
+          tooltip.querySelector('.name').textContent = item.name;
+          tooltip.querySelector('.meta').textContent = `${item.kind} · ${item.family}`;
+          tooltip.style.left = (e.clientX + 15) + 'px';
+          tooltip.style.top = (e.clientY + 15) + 'px';
+          tooltip.classList.add('visible');
+        } else {
+          tooltip.classList.remove('visible');
+        }
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => {
+      dragging = false;
+      tooltip.classList.remove('visible');
+    });
+
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      zoom *= factor;
+      zoom = Math.max(0.3, Math.min(3, zoom));
+      render();
+    });
+
+    search.addEventListener('input', e => {
+      searchTerm = e.target.value.toLowerCase();
+      render();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      rotX = 0.3;
+      rotY = 0;
+      zoom = 1;
+      render();
+    });
+
+    autoRotateBtn.addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      autoRotateBtn.classList.toggle('active', autoRotate);
+    });
+
+    // Build legend
+    for (const [family, color] of Object.entries(familyColors)) {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<span class="legend-dot" style="background:${color}"></span><span>${family}</span>`;
+      item.addEventListener('click', () => {
+        if (activeFilters.has(family)) {
+          activeFilters.delete(family);
+          item.classList.add('dimmed');
+        } else {
+          activeFilters.add(family);
+          item.classList.remove('dimmed');
+        }
+        render();
+      });
+      legend.appendChild(item);
+    }
+
+    function animate() {
+      if (autoRotate && !dragging) {
+        rotY += 0.003;
+        render();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => { resize(); render(); });
+    resize();
+    render();
+    animate();
+  </script>
+</body>
+</html>
