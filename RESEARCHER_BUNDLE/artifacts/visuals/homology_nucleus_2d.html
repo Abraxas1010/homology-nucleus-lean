@@ -55,6 +55,7 @@
       gap: 16px;
       margin-left: auto;
       font-size: 12px;
+      flex-wrap: wrap;
     }
     .legend-item {
       display: flex;
@@ -168,38 +169,37 @@
     let activeFilters = new Set(Object.keys(familyColors));
     let searchTerm = '';
     let hoveredNode = null;
+    let dpr = 1;
 
     function resize() {
-      canvas.width = canvas.clientWidth * devicePixelRatio;
-      canvas.height = canvas.clientHeight * devicePixelRatio;
-      ctx.scale(devicePixelRatio, devicePixelRatio);
+      dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
       render();
     }
 
     function worldToScreen(wx, wy) {
-      const cx = canvas.clientWidth / 2;
-      const cy = canvas.clientHeight / 2;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const cx = w / 2;
+      const cy = h / 2;
       return {
-        x: cx + (wx - 0.5) * 800 * transform.scale + transform.x,
-        y: cy + (wy - 0.5) * 800 * transform.scale + transform.y
-      };
-    }
-
-    function screenToWorld(sx, sy) {
-      const cx = canvas.clientWidth / 2;
-      const cy = canvas.clientHeight / 2;
-      return {
-        x: (sx - cx - transform.x) / (800 * transform.scale) + 0.5,
-        y: (sy - cy - transform.y) / (800 * transform.scale) + 0.5
+        x: cx + (wx - 0.5) * 600 * transform.scale + transform.x,
+        y: cy + (wy - 0.5) * 600 * transform.scale + transform.y
       };
     }
 
     function render() {
-      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
       // Draw edges
-      ctx.strokeStyle = 'rgba(100, 120, 140, 0.2)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(100, 180, 255, 0.25)';
+      ctx.lineWidth = 1.5;
       for (const [i, j] of homologyNucleusProofsData.edges) {
         const a = homologyNucleusProofsData.items[i];
         const b = homologyNucleusProofsData.items[j];
@@ -218,9 +218,9 @@
         if (!activeFilters.has(item.family)) continue;
         const matchesSearch = !searchTerm || item.name.toLowerCase().includes(searchTerm);
         const p = worldToScreen(item.pos.x, item.pos.y);
-        const r = hoveredNode === i ? 10 : 7;
+        const r = (hoveredNode === i ? 12 : 8) * transform.scale;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, r * transform.scale, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = matchesSearch ? familyColors[item.family] : 'rgba(100,100,100,0.3)';
         ctx.fill();
         if (hoveredNode === i) {
@@ -236,8 +236,9 @@
         const item = homologyNucleusProofsData.items[i];
         if (!activeFilters.has(item.family)) continue;
         const p = worldToScreen(item.pos.x, item.pos.y);
+        const r = 12 * transform.scale;
         const dx = sx - p.x, dy = sy - p.y;
-        if (dx*dx + dy*dy < 100 * transform.scale * transform.scale) return i;
+        if (dx*dx + dy*dy < r*r) return i;
       }
       return null;
     }
@@ -248,15 +249,16 @@
     });
 
     canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
       if (dragging) {
         transform.x += e.clientX - lastMouse.x;
         transform.y += e.clientY - lastMouse.y;
         lastMouse = { x: e.clientX, y: e.clientY };
         render();
       } else {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
         const node = findNodeAt(x, y);
         if (node !== hoveredNode) {
           hoveredNode = node;
@@ -278,7 +280,9 @@
     canvas.addEventListener('mouseup', () => dragging = false);
     canvas.addEventListener('mouseleave', () => {
       dragging = false;
+      hoveredNode = null;
       tooltip.classList.remove('visible');
+      render();
     });
 
     canvas.addEventListener('wheel', e => {

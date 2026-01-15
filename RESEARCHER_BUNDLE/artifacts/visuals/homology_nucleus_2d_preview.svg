@@ -11,112 +11,119 @@
   <text x="400" y="40" text-anchor="middle" fill="#e6eef7" font-family="monospace" font-size="18" font-weight="600">Homology Nucleus - 2D Proof Map</text>
   <text x="400" y="60" text-anchor="middle" fill="#6b7d8c" font-family="monospace" font-size="12">Click to explore interactively</text>
 
-  <!-- Edges (subtle connections) -->
-  <g stroke="rgba(100,120,140,0.2)" stroke-width="1" fill="none">
-    <!-- F2Matrix cluster edges -->
-    <path d="M120 180 L150 200"/>
-    <path d="M120 180 L100 220"/>
-    <path d="M150 200 L180 180"/>
-    <path d="M180 180 L200 200"/>
+  <!-- Edges - more visible -->
+  <g stroke="#4a7aa8" stroke-width="2" fill="none" opacity="0.6">
+    <!-- F2Matrix internal -->
+    <line x1="120" y1="180" x2="150" y2="200"/>
+    <line x1="150" y1="200" x2="100" y2="220"/>
+    <line x1="150" y1="200" x2="180" y2="180"/>
+    <line x1="180" y1="180" x2="200" y2="200"/>
+    <line x1="100" y1="220" x2="140" y2="240"/>
 
-    <!-- LinearAlgebra edges -->
-    <path d="M240 280 L280 300"/>
-    <path d="M280 300 L320 280"/>
-    <path d="M280 300 L300 340"/>
+    <!-- LinearAlgebra internal -->
+    <line x1="240" y1="280" x2="280" y2="300"/>
+    <line x1="280" y1="300" x2="320" y2="280"/>
+    <line x1="280" y1="300" x2="260" y2="320"/>
+    <line x1="260" y1="320" x2="300" y2="340"/>
 
-    <!-- ChainComplex edges -->
-    <path d="M400 340 L380 380"/>
-    <path d="M400 340 L440 360"/>
-    <path d="M380 380 L420 400"/>
+    <!-- ChainComplex internal -->
+    <line x1="400" y1="300" x2="380" y2="340"/>
+    <line x1="400" y1="300" x2="440" y2="320"/>
+    <line x1="380" y1="340" x2="420" y2="360"/>
+    <line x1="440" y1="320" x2="460" y2="340"/>
 
-    <!-- HomologyRepr edges -->
-    <path d="M520 380 L560 400"/>
-    <path d="M560 400 L600 380"/>
-    <path d="M560 400 L580 440"/>
+    <!-- HomologyRepr internal -->
+    <line x1="520" y1="340" x2="560" y2="360"/>
+    <line x1="560" y1="360" x2="600" y2="340"/>
+    <line x1="560" y1="360" x2="540" y2="380"/>
+    <line x1="540" y1="380" x2="580" y2="400"/>
 
-    <!-- QuotientNucleus edges -->
-    <path d="M640 460 L680 480"/>
-    <path d="M680 480 L720 460"/>
+    <!-- QuotientNucleus internal -->
+    <line x1="640" y1="420" x2="680" y2="440"/>
+    <line x1="680" y1="440" x2="720" y2="420"/>
+    <line x1="680" y1="440" x2="660" y2="460"/>
 
-    <!-- MathlibBridge edges -->
-    <path d="M600 520 L640 540"/>
-    <path d="M640 540 L680 520"/>
+    <!-- MathlibBridge internal -->
+    <line x1="600" y1="480" x2="640" y2="500"/>
+    <line x1="640" y1="500" x2="680" y2="480"/>
+    <line x1="640" y1="500" x2="620" y2="520"/>
 
     <!-- Cross-cluster connections -->
-    <path d="M200 200 L240 280"/>
-    <path d="M320 280 L400 340"/>
-    <path d="M440 360 L520 380"/>
-    <path d="M600 380 L640 460"/>
-    <path d="M580 440 L600 520"/>
+    <line x1="200" y1="200" x2="240" y2="280"/>
+    <line x1="320" y1="280" x2="400" y2="300"/>
+    <line x1="460" y1="340" x2="520" y2="340"/>
+    <line x1="600" y1="340" x2="640" y2="420"/>
+    <line x1="580" y1="400" x2="600" y2="480"/>
+    <line x1="300" y1="340" x2="380" y2="340"/>
   </g>
 
   <!-- F2Matrix cluster (blue) -->
   <g fill="#5e9cff">
-    <circle cx="120" cy="180" r="8"/>
-    <circle cx="150" cy="200" r="6"/>
-    <circle cx="100" cy="220" r="5"/>
-    <circle cx="180" cy="180" r="7"/>
-    <circle cx="200" cy="200" r="6"/>
-    <circle cx="140" cy="240" r="5"/>
+    <circle cx="120" cy="180" r="10"/>
+    <circle cx="150" cy="200" r="8"/>
+    <circle cx="100" cy="220" r="7"/>
+    <circle cx="180" cy="180" r="9"/>
+    <circle cx="200" cy="200" r="8"/>
+    <circle cx="140" cy="240" r="7"/>
   </g>
 
   <!-- LinearAlgebra cluster (purple) -->
   <g fill="#c77dff">
-    <circle cx="240" cy="280" r="8"/>
-    <circle cx="280" cy="300" r="7"/>
-    <circle cx="320" cy="280" r="6"/>
-    <circle cx="260" cy="320" r="5"/>
-    <circle cx="300" cy="340" r="6"/>
+    <circle cx="240" cy="280" r="10"/>
+    <circle cx="280" cy="300" r="9"/>
+    <circle cx="320" cy="280" r="8"/>
+    <circle cx="260" cy="320" r="7"/>
+    <circle cx="300" cy="340" r="8"/>
   </g>
 
   <!-- ChainComplex cluster (green) -->
   <g fill="#4ade80">
-    <circle cx="400" cy="340" r="9"/>
-    <circle cx="380" cy="380" r="7"/>
-    <circle cx="440" cy="360" r="6"/>
-    <circle cx="420" cy="400" r="6"/>
-    <circle cx="360" cy="360" r="5"/>
-    <circle cx="460" cy="380" r="5"/>
+    <circle cx="400" cy="300" r="11"/>
+    <circle cx="380" cy="340" r="9"/>
+    <circle cx="440" cy="320" r="8"/>
+    <circle cx="420" cy="360" r="8"/>
+    <circle cx="360" cy="320" r="7"/>
+    <circle cx="460" cy="340" r="7"/>
   </g>
 
   <!-- HomologyRepr cluster (yellow) -->
   <g fill="#fbbf24">
-    <circle cx="520" cy="380" r="8"/>
-    <circle cx="560" cy="400" r="9"/>
-    <circle cx="600" cy="380" r="7"/>
-    <circle cx="540" cy="420" r="6"/>
-    <circle cx="580" cy="440" r="6"/>
+    <circle cx="520" cy="340" r="10"/>
+    <circle cx="560" cy="360" r="11"/>
+    <circle cx="600" cy="340" r="9"/>
+    <circle cx="540" cy="380" r="8"/>
+    <circle cx="580" cy="400" r="8"/>
   </g>
 
   <!-- QuotientNucleus cluster (pink) -->
   <g fill="#f472b6">
-    <circle cx="640" cy="460" r="8"/>
-    <circle cx="680" cy="480" r="9"/>
-    <circle cx="720" cy="460" r="7"/>
-    <circle cx="660" cy="500" r="6"/>
-    <circle cx="700" cy="500" r="6"/>
+    <circle cx="640" cy="420" r="10"/>
+    <circle cx="680" cy="440" r="11"/>
+    <circle cx="720" cy="420" r="9"/>
+    <circle cx="660" cy="460" r="8"/>
+    <circle cx="700" cy="460" r="8"/>
   </g>
 
   <!-- MathlibBridge cluster (cyan) -->
   <g fill="#22d3d3">
-    <circle cx="600" cy="520" r="7"/>
-    <circle cx="640" cy="540" r="8"/>
-    <circle cx="680" cy="520" r="7"/>
-    <circle cx="620" cy="560" r="6"/>
-    <circle cx="660" cy="560" r="6"/>
-    <circle cx="700" cy="540" r="5"/>
+    <circle cx="600" cy="480" r="9"/>
+    <circle cx="640" cy="500" r="10"/>
+    <circle cx="680" cy="480" r="9"/>
+    <circle cx="620" cy="520" r="8"/>
+    <circle cx="660" cy="520" r="8"/>
+    <circle cx="700" cy="500" r="7"/>
   </g>
 
   <!-- Tests cluster (gray) -->
   <g fill="#a3a3a3">
-    <circle cx="320" cy="520" r="6"/>
-    <circle cx="340" cy="540" r="5"/>
-    <circle cx="360" cy="520" r="5"/>
-    <circle cx="380" cy="540" r="6"/>
+    <circle cx="320" cy="480" r="8"/>
+    <circle cx="340" cy="500" r="7"/>
+    <circle cx="360" cy="480" r="7"/>
+    <circle cx="380" cy="500" r="8"/>
   </g>
 
   <!-- Legend -->
-  <g transform="translate(60, 480)">
+  <g transform="translate(60, 460)">
     <circle cx="0" cy="0" r="6" fill="#5e9cff"/>
     <text x="12" y="4" fill="#6b7d8c" font-family="monospace" font-size="10">F2Matrix</text>
 
@@ -129,13 +136,13 @@
     <circle cx="0" cy="60" r="6" fill="#fbbf24"/>
     <text x="12" y="64" fill="#6b7d8c" font-family="monospace" font-size="10">HomologyRepr</text>
 
-    <circle cx="120" cy="0" r="6" fill="#f472b6"/>
-    <text x="132" y="4" fill="#6b7d8c" font-family="monospace" font-size="10">QuotientNucleus</text>
+    <circle cx="130" cy="0" r="6" fill="#f472b6"/>
+    <text x="142" y="4" fill="#6b7d8c" font-family="monospace" font-size="10">QuotientNucleus</text>
 
-    <circle cx="120" cy="20" r="6" fill="#22d3d3"/>
-    <text x="132" y="24" fill="#6b7d8c" font-family="monospace" font-size="10">MathlibBridge</text>
+    <circle cx="130" cy="20" r="6" fill="#22d3d3"/>
+    <text x="142" y="24" fill="#6b7d8c" font-family="monospace" font-size="10">MathlibBridge</text>
 
-    <circle cx="120" cy="40" r="6" fill="#a3a3a3"/>
-    <text x="132" y="44" fill="#6b7d8c" font-family="monospace" font-size="10">Tests</text>
+    <circle cx="130" cy="40" r="6" fill="#a3a3a3"/>
+    <text x="142" y="44" fill="#6b7d8c" font-family="monospace" font-size="10">Tests</text>
   </g>
 </svg>

@@ -55,6 +55,7 @@
       gap: 16px;
       margin-left: auto;
       font-size: 12px;
+      flex-wrap: wrap;
     }
     .legend-item {
       display: flex;
@@ -176,14 +177,19 @@
     let searchTerm = '';
     let hoveredNode = null;
     let autoRotate = true;
+    let dpr = 1;
 
     function resize() {
-      canvas.width = canvas.clientWidth * devicePixelRatio;
-      canvas.height = canvas.clientHeight * devicePixelRatio;
-      ctx.scale(devicePixelRatio, devicePixelRatio);
+      dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
     }
 
     function project(x, y, z) {
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+
       // Center coordinates
       x -= 0.5; y -= 0.5; z -= 0.5;
 
@@ -201,9 +207,9 @@
       const fov = 2;
       const scale = fov / (fov + z2 + 1);
 
-      const cx = canvas.clientWidth / 2;
-      const cy = canvas.clientHeight / 2;
-      const size = Math.min(cx, cy) * 0.8 * zoom;
+      const cx = w / 2;
+      const cy = h / 2;
+      const size = Math.min(cx, cy) * 0.7 * zoom;
 
       return {
         x: cx + x1 * scale * size,
@@ -214,7 +220,11 @@
     }
 
     function render() {
-      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
       // Project all nodes
       const projected = homologyNucleusProofsData.items.map((item, i) => ({
@@ -223,18 +233,20 @@
         index: i
       }));
 
-      // Sort by z for proper depth rendering
+      // Sort by z for proper depth rendering (back to front)
       projected.sort((a, b) => a.z - b.z);
 
       // Draw edges
-      ctx.strokeStyle = 'rgba(100, 120, 140, 0.15)';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       for (const [i, j] of homologyNucleusProofsData.edges) {
         const a = homologyNucleusProofsData.items[i];
         const b = homologyNucleusProofsData.items[j];
         if (!activeFilters.has(a.family) || !activeFilters.has(b.family)) continue;
         const pa = project(a.pos.x, a.pos.y, a.pos.z);
         const pb = project(b.pos.x, b.pos.y, b.pos.z);
+        const avgDepth = (pa.z + pb.z) / 2;
+        const alpha = 0.15 + (1 - (avgDepth + 0.5)) * 0.2;
+        ctx.strokeStyle = `rgba(100, 180, 255, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(pa.x, pa.y);
         ctx.lineTo(pb.x, pb.y);
@@ -246,12 +258,12 @@
         if (!activeFilters.has(p.item.family)) continue;
         const matchesSearch = !searchTerm || p.item.name.toLowerCase().includes(searchTerm);
         const isHovered = hoveredNode === p.index;
-        const baseR = isHovered ? 12 : 8;
+        const baseR = isHovered ? 14 : 10;
         const r = baseR * p.scale * zoom;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        const alpha = matchesSearch ? (0.5 + p.scale * 0.5) : 0.2;
+        const alpha = matchesSearch ? (0.6 + p.scale * 0.4) : 0.2;
         ctx.fillStyle = matchesSearch ? familyColors[p.item.family] : `rgba(100,100,100,${alpha})`;
         ctx.fill();
 
@@ -274,7 +286,7 @@
 
       for (const p of projected) {
         if (!activeFilters.has(p.item.family)) continue;
-        const r = 12 * p.scale * zoom;
+        const r = 14 * p.scale * zoom;
         const dx = sx - p.x, dy = sy - p.y;
         if (dx*dx + dy*dy < r*r) return p.index;
       }
@@ -289,6 +301,10 @@
     });
 
     canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
       if (dragging) {
         rotY += (e.clientX - lastMouse.x) * 0.01;
         rotX += (e.clientY - lastMouse.y) * 0.01;
@@ -296,9 +312,6 @@
         lastMouse = { x: e.clientX, y: e.clientY };
         render();
       } else {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
         const node = findNodeAt(x, y);
         if (node !== hoveredNode) {
           hoveredNode = node;
@@ -320,7 +333,9 @@
     canvas.addEventListener('mouseup', () => dragging = false);
     canvas.addEventListener('mouseleave', () => {
       dragging = false;
+      hoveredNode = null;
       tooltip.classList.remove('visible');
+      render();
     });
 
     canvas.addEventListener('wheel', e => {
@@ -368,7 +383,7 @@
 
     function animate() {
       if (autoRotate && !dragging) {
-        rotY += 0.003;
+        rotY += 0.005;
         render();
       }
       requestAnimationFrame(animate);
