@@ -49,16 +49,20 @@ private def boundariesRref (C : ChainComplexF2) (k : Nat) : Except String (Optio
     let B ← F2Matrix.ofRows bs
     pure (some (← F2Matrix.rref B))
 
+def reprModBoundariesWith (Rb : Option Rref) (v : F2Vec) : Except String F2Vec := do
+  match Rb with
+  | none => pure v
+  | some R =>
+      let (rem, _) ← F2Matrix.reduceWithRref R v
+      pure rem
+
 def reprModBoundaries (C : ChainComplexF2) (k : Nat) (v : F2Vec) : Except String F2Vec := do
   if k ≥ C.dims.size then
     throw s!"reprModBoundaries: k out of range: {k} (dims length={C.dims.size})"
   if v.size != C.dims[k]! then
     throw s!"reprModBoundaries: vec length {v.size} != dim C_{k} = {C.dims[k]!}"
-  match (← boundariesRref C k) with
-  | none => pure v
-  | some R =>
-      let (rem, _) ← F2Matrix.reduceWithRref R v
-      pure rem
+  let Rb ← boundariesRref C k
+  reprModBoundariesWith Rb v
 
 def isCycle (C : ChainComplexF2) (k : Nat) (v : F2Vec) : Except String Bool := do
   if k ≥ C.dims.size then
@@ -84,10 +88,11 @@ def inSpanBoundaries (C : ChainComplexF2) (k : Nat) (v : F2Vec) : Except String 
 -/
 def homologyBasisReprs (C : ChainComplexF2) (k : Nat) : Except String (Array F2Vec) := do
   C.validate
+  let Rb ← boundariesRref C k
   let zs ← cyclesBasis C k
   let mut reps : Array F2Vec := Array.mkEmpty zs.size
   for z in zs do
-    reps := reps.push (← reprModBoundaries C k z)
+    reps := reps.push (← reprModBoundariesWith Rb z)
   reps := reps.filter (fun v => !F2Vec.isZero v)
   if reps.isEmpty then
     pure #[]
@@ -101,4 +106,3 @@ end ChainComplexF2
 end Homology
 end Computational
 end HeytingLean
-

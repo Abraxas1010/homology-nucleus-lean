@@ -26,13 +26,17 @@ namespace F2Vec
 def zero (n : Nat) : F2Vec :=
   Array.replicate n false
 
-def xor (a b : F2Vec) : F2Vec :=
-  let n := Nat.min a.size b.size
+private def xorUnsafe (a b : F2Vec) : F2Vec :=
   Id.run do
-    let mut out : F2Vec := Array.mkEmpty n
-    for i in [:n] do
+    let mut out : F2Vec := Array.mkEmpty a.size
+    for i in [:a.size] do
       out := out.push (Bool.xor a[i]! b[i]!)
     out
+
+def xor (a b : F2Vec) : Except String F2Vec := do
+  if a.size != b.size then
+    throw s!"F2Vec.xor: length mismatch {a.size} vs {b.size}"
+  pure (xorUnsafe a b)
 
 def onesIdx (v : F2Vec) : Array Nat :=
   Id.run do
@@ -95,11 +99,10 @@ def ofRows (rows : Array F2Vec) : Except String F2Matrix := do
         throw s!"ofRows: row {i} has {rows[i]!.size} cols, expected {cols}"
     pure { rows := rows.size, cols := cols, data := rows }
 
-private def rowXor (a b : Array Bool) : Array Bool :=
-  let m := Nat.min a.size b.size
+private def rowXorUnsafe (a b : Array Bool) : Array Bool :=
   Id.run do
-    let mut out : Array Bool := Array.mkEmpty m
-    for i in [:m] do
+    let mut out : Array Bool := Array.mkEmpty a.size
+    for i in [:a.size] do
       out := out.push (Bool.xor a[i]! b[i]!)
     out
 
@@ -193,7 +196,7 @@ def rref (M : F2Matrix) : Except String Rref := do
         let piv := data[pivotRow]!
         for i in [:M.rows] do
           if i != pivotRow && data[i]![col]! then
-            data := data.set! i (rowXor data[i]! piv)
+            data := data.set! i (rowXorUnsafe data[i]! piv)
         pivotRow := pivotRow + 1
 
   pure { matrix := { rows := M.rows, cols := M.cols, data := data }, pivotAt := pivotAt }
@@ -224,7 +227,7 @@ def reduceWithRref (R : Rref) (v : F2Vec) : Except String (F2Vec × Array Bool) 
     | none => continue
     | some r =>
         if rem[col]! then
-          rem := F2Vec.xor rem R.matrix.data[r]!
+          rem := rowXorUnsafe rem R.matrix.data[r]!
           coeffs := coeffs.set! r (Bool.xor coeffs[r]! true)
   pure (rem, coeffs)
 
@@ -244,7 +247,7 @@ def linCombRows (rows : Array F2Vec) (coeffs : Array Bool) : Except String F2Vec
     let mut out : F2Vec := F2Vec.zero n
     for i in [:rows.size] do
       if coeffs[i]! then
-        out := F2Vec.xor out rows[i]!
+        out := rowXorUnsafe out rows[i]!
     pure out
 
 /-- Basis for the column space of `M` (as vectors in `F₂^(rows)`), via pivot columns of the RREF. -/
@@ -275,30 +278,10 @@ def nullspaceBasis (M : F2Matrix) : Except String (Array F2Vec) := do
       out := out.push x
   pure out
 
-/-- Compute matrix rank over `F₂` by row reduction (Gaussian elimination with XOR). -/
-def rank (M : F2Matrix) : Nat :=
-  Id.run do
-    let mut data := M.data
-    let mut pivotRow : Nat := 0
-    let mut r : Nat := 0
-
-    for col in [:M.cols] do
-      if pivotRow ≥ M.rows then
-        continue
-      match findPivotRow data col pivotRow with
-      | none => continue
-      | some pr =>
-          if pr != pivotRow then
-            let tmp := data[pr]!
-            data := (data.set! pr data[pivotRow]!).set! pivotRow tmp
-          let piv := data[pivotRow]!
-          for i in [:M.rows] do
-            if i != pivotRow && data[i]![col]! then
-              data := data.set! i (rowXor data[i]! piv)
-          pivotRow := pivotRow + 1
-          r := r + 1
-
-    r
+/-- Compute matrix rank over `F₂` as the number of pivot columns in `rref`. -/
+def rank (M : F2Matrix) : Except String Nat := do
+  let R ← rref M
+  pure (pivotCols R).size
 
 end F2Matrix
 

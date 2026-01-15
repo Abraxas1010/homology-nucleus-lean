@@ -35,8 +35,8 @@ private def demoNucleusExists : Bool :=
   | .error _ => false
   | .ok C =>
       let n1 := C.dims[1]!
-      let _N : Nucleus (ChainComplexF2.HomologyQuot C 1 n1) :=
-        ChainComplexF2.HomologyQuot.idNucleus (C := C) (k := 1) (n := n1)
+      let _N : Nucleus (ChainComplexF2.CkModBkQuot C 1 n1) :=
+        ChainComplexF2.CkModBkQuot.idNucleus (C := C) (k := 1) (n := n1)
       true
 
 example : demoNucleusExists = true := by
@@ -46,4 +46,3 @@ end QuotNucleusSanity
 end Homology
 end Tests
 end HeytingLean
-

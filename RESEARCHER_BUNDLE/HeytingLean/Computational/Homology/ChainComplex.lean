@@ -62,13 +62,16 @@ def validate (C : ChainComplexF2) : Except String Unit := do
   C.validateShapes
   C.checkD2
 
-def boundaryRanks (C : ChainComplexF2) : Array Nat :=
-  C.boundaries.map (fun M => M.rank)
+def boundaryRanks (C : ChainComplexF2) : Except String (Array Nat) := do
+  let mut out : Array Nat := Array.mkEmpty C.boundaries.size
+  for k in [:C.boundaries.size] do
+    out := out.push (← (C.boundaries[k]!).rank)
+  pure out
 
 def bettiAtUnsafe (C : ChainComplexF2) (k : Nat) : Except String Nat := do
   if k < C.dims.size then
     let n := C.dims[k]!
-    let ranks := C.boundaryRanks
+    let ranks ← C.boundaryRanks
     let rPrev := if k == 0 then 0 else ranks[k-1]!
     let rNext := if k < ranks.size then ranks[k]! else 0
     if rPrev + rNext > n then

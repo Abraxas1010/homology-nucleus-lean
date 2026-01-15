@@ -25,3 +25,4 @@ import HeytingLean.Computational.Homology.MathlibHomologyQuotient
 import HeytingLean.Tests.Homology.ReprBasisSanity
 import HeytingLean.Tests.Homology.QuotNucleusSanity
 import HeytingLean.Tests.Homology.MathlibQuotientReprSanity
+import HeytingLean.Tests.Homology.MoreSanity

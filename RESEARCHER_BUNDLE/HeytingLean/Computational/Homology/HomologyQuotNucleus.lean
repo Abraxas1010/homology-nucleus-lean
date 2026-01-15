@@ -46,26 +46,26 @@ def reprSetoidVecN (C : ChainComplexF2) (k : Nat) (n : Nat) : Setoid (VecN n) wh
 
 This is a *strong* Mathlib-checked quotient object (via `Quot`) aligned with the executable
 normal-form selection, without importing Mathlib’s homological algebra stack. -/
-abbrev HomologyQuot (C : ChainComplexF2) (k n : Nat) : Type :=
+abbrev CkModBkQuot (C : ChainComplexF2) (k n : Nat) : Type :=
   Quot (C.reprSetoidVecN k n)
 
-namespace HomologyQuot
+namespace CkModBkQuot
 
 variable {C : ChainComplexF2} {k n : Nat}
 
-private def bot (C : ChainComplexF2) (k n : Nat) : HomologyQuot C k n :=
+private def bot (C : ChainComplexF2) (k n : Nat) : CkModBkQuot C k n :=
   Quot.mk _ (C.reprTotalVecN k (VecN.zero n))
 
-private def le (C : ChainComplexF2) (k n : Nat) (a b : HomologyQuot C k n) : Prop :=
+private def le (C : ChainComplexF2) (k n : Nat) (a b : CkModBkQuot C k n) : Prop :=
   a = bot C k n ∨ a = b
 
-private def inf (C : ChainComplexF2) (k n : Nat) (a b : HomologyQuot C k n) : HomologyQuot C k n :=
+private def inf (C : ChainComplexF2) (k n : Nat) (a b : CkModBkQuot C k n) : CkModBkQuot C k n :=
   if h : a = b then a else bot C k n
 
-private theorem le_refl (C : ChainComplexF2) (k n : Nat) (a : HomologyQuot C k n) : le C k n a a :=
+private theorem le_refl (C : ChainComplexF2) (k n : Nat) (a : CkModBkQuot C k n) : le C k n a a :=
   Or.inr rfl
 
-private theorem le_trans (C : ChainComplexF2) (k n : Nat) {a b c : HomologyQuot C k n} :
+private theorem le_trans (C : ChainComplexF2) (k n : Nat) {a b c : CkModBkQuot C k n} :
     le C k n a b → le C k n b c → le C k n a c := by
   intro hab hbc
   rcases hab with hab | rfl
@@ -74,7 +74,7 @@ private theorem le_trans (C : ChainComplexF2) (k n : Nat) {a b c : HomologyQuot 
     · exact Or.inl hbc
     · exact Or.inr rfl
 
-private theorem le_antisymm (C : ChainComplexF2) (k n : Nat) {a b : HomologyQuot C k n} :
+private theorem le_antisymm (C : ChainComplexF2) (k n : Nat) {a b : CkModBkQuot C k n} :
     le C k n a b → le C k n b a → a = b := by
   intro hab hba
   rcases hab with hab | hab
@@ -85,21 +85,21 @@ private theorem le_antisymm (C : ChainComplexF2) (k n : Nat) {a b : HomologyQuot
   · -- `a = b`
     exact hab
 
-private theorem inf_le_left (C : ChainComplexF2) (k n : Nat) (a b : HomologyQuot C k n) :
+private theorem inf_le_left (C : ChainComplexF2) (k n : Nat) (a b : CkModBkQuot C k n) :
     le C k n (inf C k n a b) a := by
   unfold inf le
   by_cases h : a = b
   · simp [h]
   · simp [h]
 
-private theorem inf_le_right (C : ChainComplexF2) (k n : Nat) (a b : HomologyQuot C k n) :
+private theorem inf_le_right (C : ChainComplexF2) (k n : Nat) (a b : CkModBkQuot C k n) :
     le C k n (inf C k n a b) b := by
   unfold inf le
   by_cases h : a = b
   · simp [h]
   · simp [h]
 
-private theorem le_inf (C : ChainComplexF2) (k n : Nat) {a b c : HomologyQuot C k n} :
+private theorem le_inf (C : ChainComplexF2) (k n : Nat) {a b c : CkModBkQuot C k n} :
     le C k n a b → le C k n a c → le C k n a (inf C k n b c) := by
   intro hab hac
   unfold inf le
@@ -110,7 +110,7 @@ private theorem le_inf (C : ChainComplexF2) (k n : Nat) {a b c : HomologyQuot C 
     · exact Or.inl hb
     · simp [h]
 
-instance : SemilatticeInf (HomologyQuot C k n) where
+instance : SemilatticeInf (CkModBkQuot C k n) where
   le a b := le C k n a b
   le_refl := le_refl C k n
   le_trans := by intro a b c; exact le_trans C k n
@@ -139,13 +139,13 @@ instance : SemilatticeInf (HomologyQuot C k n) where
     simp
 
 /-- A genuine Mathlib `Nucleus` whose `Ω` is (trivially) the computed quotient itself. -/
-def idNucleus : Nucleus (HomologyQuot C k n) where
+def idNucleus : Nucleus (CkModBkQuot C k n) where
   toFun x := x
   map_inf' x y := by simp
   idempotent' x := by simp
   le_apply' x := by simp
 
-end HomologyQuot
+end CkModBkQuot
 
 end ChainComplexF2
 

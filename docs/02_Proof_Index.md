@@ -92,3 +92,18 @@ Fixed-length F₂ vector (subtype of `F2Vec`).
 **File**: `HomologyQuotNucleus.lean`
 
 The computed quotient forms a semilattice with inf.
+
+### CkModBkQuot
+**File**: `HomologyQuotNucleus.lean`
+
+The quotient structure `Cₖ mod Bₖ` with Nucleus properties.
+
+## Test Suites
+
+### MoreSanity
+**File**: `Tests/Homology/MoreSanity.lean`
+
+Extended topological test suite:
+- `S1`: Circle complex (β₁ = 1)
+- `disk`: Contractible disk (β₁ = 0)
+- `wedgeTwoCircles`: Wedge of two circles (β₁ = 2)
