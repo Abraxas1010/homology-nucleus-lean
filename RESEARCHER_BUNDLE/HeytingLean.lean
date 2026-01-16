@@ -1,27 +1,38 @@
--- Homology Nucleus: Computable F₂ Representatives and Mathlib Quotient Proofs
---
--- This module provides:
--- 1. Executable F₂ linear algebra (RREF, nullspace, column-space bases)
--- 2. Computable canonical representatives modulo boundaries for Hₖ = Zₖ/Bₖ
--- 3. A genuine Mathlib.Order.Nucleus instance on the computed quotient type
--- 4. A Mathlib proof that repr-induced quotients coincide with Zₖ/Bₖ submodule quotients
+/-!
+# Homology Nucleus Lean - Computable F₂ Representatives
 
--- Core F₂ matrix operations
+Machine-checked formalization proving that computable `repr`-induced quotients
+coincide with the classical Mathlib `Zₖ/Bₖ` submodule quotients.
+
+## Modules
+
+### Computational Layer (F₂ Linear Algebra)
+- `F2Matrix`: XOR Gaussian elimination, RREF, nullspace/column-space bases
+- `ChainComplex`: Chain complex representation, Betti number computation
+- `HomologyRepr`: Canonical representatives via reduction modulo boundaries
+
+### Nucleus Layer (Mathlib Integration)
+- `HomologyQuotNucleus`: Genuine Mathlib `Nucleus` on the computed quotient
+- `MathlibHomologyQuotient`: Proof that `repr x = repr y ↔ x - y ∈ Bₖ`
+
+### Key Results
+- `repr` is idempotent: `repr(repr(z)) = repr(z)`
+- Basis representatives are cycles but not boundaries
+- Quotient-by-repr equals classical `Zₖ/Bₖ` quotient
+- The quotient carries a Mathlib `Nucleus` structure
+-/
+
+-- Computational Layer
 import HeytingLean.Computational.Homology.F2Matrix
-
--- Chain complex structure and Betti number computation
 import HeytingLean.Computational.Homology.ChainComplex
-
--- Computable homology representatives
 import HeytingLean.Computational.Homology.HomologyRepr
 
--- Mathlib Nucleus on computed quotient type
+-- Nucleus Layer
 import HeytingLean.Computational.Homology.HomologyQuotNucleus
-
--- Mathlib proof: repr quotient = submodule quotient
 import HeytingLean.Computational.Homology.MathlibHomologyQuotient
 
--- Sanity tests
+-- Tests
+import HeytingLean.Tests.Homology.Sanity
 import HeytingLean.Tests.Homology.ReprBasisSanity
 import HeytingLean.Tests.Homology.QuotNucleusSanity
 import HeytingLean.Tests.Homology.MathlibQuotientReprSanity

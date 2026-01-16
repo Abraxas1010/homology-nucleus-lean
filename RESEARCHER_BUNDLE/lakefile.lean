@@ -6,7 +6,7 @@ package «HeytingLean» where
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4" @ "v4.24.0"
 
--- Pin auxiliary libraries to Mathlib v4.24.0-compatible revisions for reproducibility.
+-- Pin auxiliary libraries for reproducibility (matching mathlib v4.24.0).
 require Cli from git
   "https://github.com/leanprover/lean4-cli" @ "91c18fa62838ad0ab7384c03c9684d99d306e1da"
 require Qq from git
@@ -24,7 +24,3 @@ require batteries from git
 
 @[default_target]
 lean_lib «HeytingLean» where
-
--- Sanity test executable: runs all compile-time checks on the homology representative system.
-lean_exe homology_sanity where
-  root := `HeytingLean.Tests.Homology.ReprBasisSanity

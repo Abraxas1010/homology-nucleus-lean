@@ -2,9 +2,9 @@
 
 ## Requirements
 
-- **Lean**: v4.24.0
-- **Lake**: Included with Lean toolchain
-- **Mathlib**: v4.24.0 (fetched automatically)
+- **Lean**: v4.24.0 (pinned in `lean-toolchain`)
+- **Mathlib**: v4.24.0 (pinned in `lakefile.lean`)
+- **elan**: Latest (for Lean toolchain management)
 
 ## Quick Start
 
@@ -13,87 +13,95 @@
 git clone https://github.com/Abraxas1010/homology-nucleus-lean.git
 cd homology-nucleus-lean/RESEARCHER_BUNDLE
 
-# Build (first build will download Mathlib, ~10-15 min)
+# Install Lean toolchain (if needed)
+elan default leanprover/lean4:v4.24.0
+
+# Fetch dependencies
+lake update
+
+# Build and verify
 lake build --wfail
 ```
 
 ## Verification Steps
 
-### 1. Check for sorry/admit
-
-```bash
-grep -rn "sorry\|admit" HeytingLean/
-# Should return nothing (zero matches)
-```
-
-### 2. Full Build
+### 1. Build Library
 
 ```bash
 lake build --wfail
 ```
 
-The `--wfail` flag treats warnings as errors, ensuring strict compilation.
+This compiles all modules and verifies all proofs. The `--wfail` flag treats warnings as errors.
 
-### 3. Verify Sanity Tests
+### 2. Check for Sorry/Admit
 
-All sanity tests are compile-time verified via `native_decide`:
+```bash
+grep -rn "sorry\|admit" HeytingLean/*.lean HeytingLean/**/*.lean
+```
+
+Expected output: no matches (exit code 1).
+
+### 3. Run Sanity Tests
+
+The test files use `native_decide` to verify computational results:
 
 ```lean
--- In ReprBasisSanity.lean
+-- ReprBasisSanity.lean
 example : demoBettis = #[1, 0, 1] := by native_decide
-example : demoBasisSizes = demoBettis := by native_decide
 example : demoReprIdempotent = true := by native_decide
-example : demoBasisVectorsAreCycles = true := by native_decide
-example : demoBasisVectorsNotBoundaries = true := by native_decide
-
--- In QuotNucleusSanity.lean
-example : demoNucleusExists = true := by native_decide
 ```
 
-These are checked at compile time; a successful build proves they pass.
+These tests execute at compile time—if the build succeeds, the tests pass.
 
-## Expected Build Output
+## Build Times
 
-```
-Build completed successfully.
-```
+| Component | Approximate Time |
+|-----------|------------------|
+| First build (with Mathlib) | 15-30 minutes |
+| Incremental rebuild | <1 minute |
+| Full clean rebuild | 15-30 minutes |
 
 ## Troubleshooting
 
-### Mathlib download fails
-
-If Mathlib download is interrupted:
+### Missing Lean Toolchain
 
 ```bash
-rm -rf .lake/packages
+elan install leanprover/lean4:v4.24.0
+elan default leanprover/lean4:v4.24.0
+```
+
+### Lake Cache Issues
+
+```bash
+lake clean
 lake update
-lake build --wfail
+lake build
 ```
 
-### Toolchain mismatch
+### Mathlib Version Mismatch
 
-Ensure you're using the correct Lean version:
+The `lakefile.lean` pins all dependencies. If you see version conflicts:
 
 ```bash
-cat lean-toolchain
-# Should show: leanprover/lean4:v4.24.0
+rm -rf .lake lake-manifest.json
+lake update
 ```
 
-If using elan:
+## File Checksums
+
+To verify file integrity:
 
 ```bash
-elan override set leanprover/lean4:v4.24.0
+sha256sum HeytingLean/Computational/Homology/*.lean
 ```
 
-### Memory issues
+## CI Integration
 
-Mathlib is large. If build fails with OOM:
+For GitHub Actions:
 
-```bash
-# Reduce parallelism
-lake build -j1 --wfail
+```yaml
+- uses: leanprover/lean4-action@v1
+  with:
+    lean-version: 'v4.24.0'
+- run: cd RESEARCHER_BUNDLE && lake build --wfail
 ```
-
-## CI/CD Note
-
-This repository is designed for local verification. No CI/CD configuration is included by default to ensure portability and avoid external dependencies.

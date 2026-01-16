@@ -1,67 +1,64 @@
 # Dependencies
 
-## Direct Dependencies
+## Lean Toolchain
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Mathlib | v4.24.0 | Order.Nucleus, LinearAlgebra.Quotient.Basic |
-| Std | (via Mathlib) | HashMap, Array utilities |
+| Component | Version | Source |
+|-----------|---------|--------|
+| Lean 4 | v4.24.0 | [lean-lang.org](https://lean-lang.org/) |
+| Lake | (bundled) | Lean package manager |
+
+## Mathlib Dependencies
+
+All dependencies are pinned in `lakefile.lean` for reproducibility.
+
+| Package | Version/Commit | Purpose |
+|---------|----------------|---------|
+| mathlib | v4.24.0 | Core mathematics library |
+| batteries | 8da40b7... | Extended standard library |
+| Qq | dea6a33... | Quotation/metaprogramming |
+| aesop | 725ac8c... | Proof automation |
+| Cli | 91c18fa... | Command-line parsing |
+| importGraph | d768126... | Import graph utilities |
+| LeanSearchClient | 99657ad... | Mathlib search client |
+| plausible | dfd06eb... | Property-based testing |
 
 ## Mathlib Modules Used
 
-### Mathlib.Order.Nucleus
+### Order Theory
 
-Provides the `Nucleus` typeclass for closure operators on meet-semilattices:
+| Module | Imports |
+|--------|---------|
+| `Mathlib.Order.Nucleus` | `Nucleus` definition |
+| `Mathlib.Order.Closure` | Closure operator basics |
+| `Mathlib.Order.Basic` | Partial order fundamentals |
 
-```lean
-class Nucleus (α : Type*) [SemilatticeInf α] where
-  toFun : α → α
-  map_inf' : ∀ x y, toFun (x ⊓ y) = toFun x ⊓ toFun y
-  idempotent' : ∀ x, toFun (toFun x) = toFun x
-  le_apply' : ∀ x, x ≤ toFun x
-```
+### Linear Algebra
 
-### Mathlib.LinearAlgebra.Quotient.Basic
+| Module | Imports |
+|--------|---------|
+| `Mathlib.LinearAlgebra.Quotient.Basic` | `Submodule.Quotient` |
+| `Mathlib.LinearAlgebra.Basic` | Linear maps |
+| `Mathlib.Algebra.Module.Submodule.Basic` | Submodule definition |
 
-Provides `Submodule.Quotient` and the key theorem:
+## Standard Library
 
-```lean
-theorem Submodule.Quotient.eq (x y : M) :
-    (Submodule.Quotient.mk x : M ⧸ p) = Submodule.Quotient.mk y ↔ x - y ∈ p
-```
+| Module | Purpose |
+|--------|---------|
+| `Std` | Arrays, HashMap, basic utilities |
+| `Lean.Data.Json` | JSON parsing for chain complexes |
 
-## Pinned Auxiliary Packages
+## No External Runtime Dependencies
 
-For build reproducibility, auxiliary packages are pinned to specific revisions:
-
-| Package | Revision | Notes |
-|---------|----------|-------|
-| Cli | 91c18fa | Lean 4 CLI library |
-| Qq | dea6a33 | Quote4 metaprogramming |
-| aesop | 725ac8c | Proof automation |
-| importGraph | d768126 | Import graph utilities |
-| LeanSearchClient | 99657ad | Lean search integration |
-| plausible | dfd06eb | Property testing |
-| batteries | 8da40b7 | Standard library extensions |
-
-## Version Compatibility
-
-This formalization requires:
-- Lean 4.24.0 (specified in `lean-toolchain`)
-- Mathlib v4.24.0 (specified in `lakefile.lean`)
-
-Earlier or later versions may require adjustments due to:
-- API changes in Mathlib
-- Syntax changes in Lean 4
-- Tactic behavior differences
+The formalization is purely type-checked—no external solvers, SMT integrations, or runtime libraries are required. All computations use Lean's native `native_decide` tactic.
 
 ## Updating Dependencies
 
-To update to a newer Mathlib version:
+To update to newer Mathlib (may break proofs):
 
-1. Edit `lakefile.lean` to point to new version
-2. Update `lean-toolchain` if required
-3. Update auxiliary package pins to match Mathlib's manifest
-4. Run `lake update`
-5. Fix any API breakages
-6. Rebuild and verify all sanity tests pass
+```bash
+# Edit lakefile.lean to change mathlib version
+lake update
+lake build
+```
+
+We recommend keeping the pinned versions for reproducibility.

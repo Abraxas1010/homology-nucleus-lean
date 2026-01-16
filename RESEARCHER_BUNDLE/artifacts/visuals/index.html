@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homology Nucleus - Visualization Index</title>
+  <title>Homology Nucleus - Proof Visualizations</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -15,26 +15,23 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 40px;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1200px; margin: 0 auto; }
     h1 {
-      font-size: 28px;
-      font-weight: 600;
+      font-size: 32px;
       margin-bottom: 8px;
+      color: var(--accent);
     }
     .subtitle {
       color: var(--dim);
       margin-bottom: 40px;
     }
-    .grid {
+    .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       gap: 24px;
@@ -44,9 +41,10 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
-      transition: border-color 0.2s;
+      transition: transform 0.2s, border-color 0.2s;
     }
     .card:hover {
+      transform: translateY(-4px);
       border-color: var(--accent);
     }
     .card a {
@@ -56,75 +54,62 @@
     }
     .card img {
       width: 100%;
-      height: auto;
-      display: block;
+      height: 280px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
     }
-    .card-body {
+    .card-content {
       padding: 20px;
     }
     .card h2 {
       font-size: 18px;
-      font-weight: 500;
       margin-bottom: 8px;
     }
     .card p {
       color: var(--dim);
       font-size: 14px;
-      line-height: 1.5;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      background: rgba(74, 158, 255, 0.15);
-      color: var(--accent);
-      border-radius: 4px;
-      font-size: 12px;
-      margin-top: 12px;
     }
     footer {
       margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
       text-align: center;
       color: var(--dim);
-      font-size: 12px;
+      font-size: 14px;
     }
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Homology Nucleus Visualizations</h1>
-    <p class="subtitle">Interactive proof maps for F₂ homology representatives and Mathlib nucleus quotients</p>
-
-    <div class="grid">
+    <h1>Homology Nucleus</h1>
+    <p class="subtitle">Machine-checked formalization of computable F₂ representatives with Mathlib nucleus quotients</p>
+    
+    <div class="cards">
       <div class="card">
         <a href="homology_nucleus_2d.html">
-          <img src="homology_nucleus_2d_preview.svg" alt="2D Proof Map Preview">
-          <div class="card-body">
+          <img src="homology_nucleus_2d_preview.svg" alt="2D Proof Map">
+          <div class="card-content">
             <h2>2D Proof Map</h2>
-            <p>Pan and zoom through the declaration dependency graph. Search for specific definitions and theorems. Filter by module family.</p>
-            <span class="badge">Interactive</span>
+            <p>Interactive 2D visualization with pan, zoom, and search. Explore declaration dependencies and module clusters.</p>
           </div>
         </a>
       </div>
-
+      
       <div class="card">
         <a href="homology_nucleus_3d.html">
-          <img src="homology_nucleus_3d_preview_animated.svg" alt="3D Proof Map Preview">
-          <div class="card-body">
+          <img src="homology_nucleus_3d_preview.svg" alt="3D Proof Map">
+          <div class="card-content">
             <h2>3D Proof Map</h2>
-            <p>Rotate and explore the proof space in three dimensions. Auto-rotate mode shows the full structure. Click nodes for details.</p>
-            <span class="badge">Interactive</span>
+            <p>Interactive 3D visualization with rotation, zoom, and node selection. See the full spatial structure of the formalization.</p>
           </div>
         </a>
       </div>
     </div>
-
+    
     <footer>
-      <p>Part of the <a href="https://github.com/Abraxas1010/heyting">HeytingLean</a> formalization project</p>
-      <p style="margin-top: 8px;"><a href="https://apoth3osis.io">apoth3osis.io</a></p>
+      <p>Part of <a href="https://github.com/Abraxas1010/heyting">HeytingLean</a> | <a href="https://apoth3osis.io">apoth3osis.io</a></p>
     </footer>
   </div>
 </body>
